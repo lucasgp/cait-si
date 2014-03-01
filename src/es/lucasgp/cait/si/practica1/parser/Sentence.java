@@ -2,7 +2,6 @@ package es.lucasgp.cait.si.practica1.parser;
 
 import java.util.Collection;
 
-
 public class Sentence {
 
     public final Variable ls;
@@ -29,7 +28,7 @@ public class Sentence {
         return result;
     }
 
-    public Variable eval(Collection<Variable> actual) {
-        return rs.eval(actual) ? ls : null;
+    public boolean eval(Collection<Variable> actual) {
+        return rs.eval(actual);
     }
 }

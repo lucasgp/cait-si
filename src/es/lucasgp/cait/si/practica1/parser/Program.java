@@ -2,12 +2,19 @@ package es.lucasgp.cait.si.practica1.parser;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
+import java.util.TreeSet;
 
-public class Program extends ArrayList<Sentence> {
+public class Program {
 
-    private static final long serialVersionUID = 1L;
+    private final Set<Variable> variables = new TreeSet<>();
+    private final List<Sentence> sentences = new ArrayList<>();
+    private final Map<Variable, List<Sentence>> sentencesByVariable = new HashMap<>();
 
     public Program(String path) {
         loadProgram(path);
@@ -43,5 +50,34 @@ public class Program extends ArrayList<Sentence> {
         }
 
         System.out.println("---- Program loaded ----\n");
+    }
+
+    private void add(Sentence sentence) {
+        sentences.add(sentence);
+        variables.add(sentence.ls);
+        variables.addAll(sentence.rs.vars);
+        List<Sentence> variableSentences = sentencesByVariable.get(sentence.ls);
+        if (variableSentences == null) {
+            variableSentences = new ArrayList<>();
+            sentencesByVariable.put(sentence.ls, variableSentences);
+        }
+        variableSentences.add(sentence);
+    }
+
+    public boolean isEmpty() {
+        return sentences.isEmpty();
+    }
+
+    public Set<Variable> getVariables() {
+        return variables;
+    }
+
+    public List<Sentence> getSentences() {
+        return sentences;
+    }
+
+    public List<Sentence> getSentences(Variable var) {
+        List<Sentence> sentences = sentencesByVariable.get(var);
+        return sentences != null ? sentences : Collections.<Sentence>emptyList();
     }
 }

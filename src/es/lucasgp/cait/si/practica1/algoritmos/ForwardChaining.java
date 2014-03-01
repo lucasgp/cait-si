@@ -19,19 +19,18 @@ public class ForwardChaining {
         Program program = new Program(args[0]);
         Set<Variable> result = new TreeSet<>();
 
-        System.out.println(String.format("------ Looking for asignations ------"));
+        System.out.println(String.format("------ Looking for assignments ------"));
 
-        for (Iterator<Sentence> programIterator = program.iterator(); programIterator.hasNext();) {
+        for (Iterator<Sentence> programIterator = program.getSentences().iterator(); programIterator.hasNext();) {
             Sentence sentence = programIterator.next();
-            Variable var = sentence.eval(Collections.<Variable> emptyList());
-            if (var != null) {
-                result.add(var);
+            if (sentence.eval(Collections.<Variable> emptyList())) {
+                result.add(sentence.ls);
                 programIterator.remove();
                 System.out.println(String.format("Found %s", sentence));
             }
         }
 
-        System.out.println(String.format("------ Asignations ------\n%s", result));
+        System.out.println(String.format("------ Assignments ------\n%s", result));
 
         int iter = 0;
         Collection<Variable> previous = null;
@@ -41,7 +40,7 @@ public class ForwardChaining {
 
             System.out.println(String.format("------ Removing variables already in the result ------"));
 
-            for (Iterator<Sentence> sentenceIt = program.iterator(); sentenceIt.hasNext();) {
+            for (Iterator<Sentence> sentenceIt = program.getSentences().iterator(); sentenceIt.hasNext();) {
 
                 Sentence sentence = sentenceIt.next();
 
@@ -61,14 +60,13 @@ public class ForwardChaining {
 
             System.out.println(String.format("------ Execution %d ------", ++iter));
 
-            for (Sentence sentence : program) {
+            for (Sentence sentence : program.getSentences()) {
 
                 System.out.println("Sentence: " + sentence);
 
-                Variable sentenceResult = sentence.eval(result);
-
-                if (sentenceResult != null)
-                    result.add(sentenceResult);
+                if (sentence.eval(result)) {
+                    result.add(sentence.ls);
+                }
 
                 System.out.println(String.format("Execution %d result: %s", iter, result));
             }

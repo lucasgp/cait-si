@@ -23,14 +23,13 @@ public class IterateStable {
 
             previous.addAll(actual);
 
-            for (Sentence sentence : program) {
+            for (Sentence sentence : program.getSentences()) {
 
                 System.out.println("Sentence: " + sentence);
 
-                Variable sentenceResult = sentence.eval(actual);
-
-                if (sentenceResult != null)
-                    actual.add(sentenceResult);
+                if (sentence.eval(actual)) {
+                    actual.add(sentence.ls);
+                }
 
                 System.out.println(String.format("Execution %d result: %s", iter, actual));
             }
