@@ -1,6 +1,8 @@
 package es.lucasgp.cait.si.practica1.algoritmos;
 
 import java.io.FileNotFoundException;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -18,29 +20,35 @@ public class BackwardChaining {
         Set<Variable> result = new TreeSet<>();
 
         for (Variable variable : program.getVariables()) {
-            result.addAll(eval(variable, 0));
+            result.addAll(eval(variable, new HashSet<Variable>(), 0));
         }
 
         System.out.println(String.format("\nFinal result: %s\n", result));
 
     }
 
-    private static Set<Variable> eval(Variable var, int deep) {
-        deep++;
-        System.out.println(String.format("%s------ Evaluating sentences for variable '%s'... ------", tabs(deep), var));
+    private static Collection<Variable> eval(Variable var, Collection<Variable> result, int deep) {
 
-        Set<Variable> result = new TreeSet<>();
+        deep++;
+
+        System.out.println(String.format("%s------ Evaluating sentences for variable '%s'... ------", tabs(deep), var));
 
         for (Sentence sentence : program.getSentences(var)) {
 
             System.out.println(String.format("%sSentence: %s", tabs(deep), sentence));
 
-            for (Variable conditionVar : sentence.rs.vars) {
-                result.addAll(eval(conditionVar, deep));
-            }
-
             if (sentence.eval(result)) {
                 result.add(sentence.ls);
+            } else {
+
+                for (Variable conditionVar : sentence.rs.vars) {
+                    result.addAll(eval(conditionVar, result, deep));
+                }
+
+                if (sentence.eval(result)) {
+                    result.add(sentence.ls);
+                }
+
             }
 
             System.out.println(String.format("%sResult: %s", tabs(deep), result));
