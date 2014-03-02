@@ -2,6 +2,7 @@ package es.lucasgp.cait.si.practica1.parser;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -33,16 +34,24 @@ public class Program {
                 String[] sentenceSides = line.replace(".", "").replace(" ", "").split("<-");
 
                 List<Variable> conditionVars = new ArrayList<>();
-                if (sentenceSides.length > 1) {
-                    for (String varName : sentenceSides[1].split(",")) {
-                        conditionVars.add(new Variable(varName));
+                if (sentenceSides.length == 1) {
+                    add(new Sentence(new Variable(sentenceSides[0]), new Condition()));
+                } else {
+                    if (sentenceSides[1].contains("|")) {
+                        System.out.println("--- OR sentence: " + line);
+                        for (String varName : sentenceSides[1].split("[|,]")) {
+                            add(new Sentence(new Variable(sentenceSides[0]), new Condition(Arrays.asList(new Variable(
+                                    varName)))));
+                        }
+                        System.out.println("---");
+                    } else {
+                        for (String varName : sentenceSides[1].split("[|,]")) {
+                            conditionVars.add(new Variable(varName));
+                        }
+                        add(new Sentence(new Variable(sentenceSides[0]), new Condition(conditionVars)));
                     }
+
                 }
-
-                Sentence sentence = new Sentence(new Variable(sentenceSides[0]), new Condition(conditionVars));
-                add(sentence);
-
-                System.out.println(sentence);
             }
 
         } catch (Exception e) {
@@ -53,6 +62,7 @@ public class Program {
     }
 
     private void add(Sentence sentence) {
+        System.out.println(sentence);
         sentences.add(sentence);
         variables.add(sentence.ls);
         variables.addAll(sentence.rs.vars);
@@ -78,6 +88,6 @@ public class Program {
 
     public List<Sentence> getSentences(Variable var) {
         List<Sentence> sentences = sentencesByVariable.get(var);
-        return sentences != null ? sentences : Collections.<Sentence>emptyList();
+        return sentences != null ? sentences : Collections.<Sentence> emptyList();
     }
 }

@@ -7,11 +7,6 @@ import java.util.List;
 
 public class Condition {
 
-    enum Operation {
-        AND, OR;
-    }
-
-    public final Operation op;
     public final List<Variable> vars = new ArrayList<Variable>();
 
     public Condition() {
@@ -19,29 +14,15 @@ public class Condition {
     }
 
     public Condition(List<Variable> vars) {
-        this(vars, Operation.AND);
-    }
-
-    public Condition(List<Variable> vars, Operation operation) {
         this.vars.addAll(vars);
-        this.op = operation;
     }
 
     public boolean eval(Collection<Variable> actual) {
 
-        boolean result = vars.isEmpty() || op == Operation.AND ? true : false;
+        boolean result = true;
 
         for (Variable var : vars) {
-            switch (op) {
-            case AND:
-                result &= actual.contains(var);
-                break;
-            case OR:
-                result |= actual.contains(var);
-                break;
-            default:
-                throw new IllegalArgumentException("Operation not recognized");
-            }
+            result &= actual.contains(var);
         }
 
         return result;

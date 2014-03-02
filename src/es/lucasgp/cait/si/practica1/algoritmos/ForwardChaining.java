@@ -16,7 +16,7 @@ public class ForwardChaining {
 
     public static void main(String... args) throws FileNotFoundException {
 
-        Program program = new Program(args[0]);
+        Program program = new Program("programs/programaOrTypes");
         Set<Variable> result = new TreeSet<>();
 
         System.out.println(String.format("------ Looking for assignments ------"));
@@ -26,11 +26,11 @@ public class ForwardChaining {
             if (sentence.eval(Collections.<Variable> emptyList())) {
                 result.add(sentence.ls);
                 programIterator.remove();
-                System.out.println(String.format("Found %s", sentence));
+                System.out.println(String.format("\tFound %s", sentence));
             }
         }
 
-        System.out.println(String.format("------ Assignments ------\n%s", result));
+        System.out.println(String.format("------ Assignments %s ------\n", result));
 
         int iter = 0;
         Collection<Variable> previous = null;
@@ -46,12 +46,12 @@ public class ForwardChaining {
 
                 if (result.contains(sentence.ls)) {
                     sentenceIt.remove();
-                    System.out.println(sentence + " deleted");
+                    System.out.println("\t" + sentence + " deleted");
                 } else if (!sentence.rs.isEmpty()) {
                     for (Iterator<Variable> varIt = sentence.rs.vars.iterator(); varIt.hasNext();) {
                         Variable variable = varIt.next();
                         if (result.contains(variable)) {
-                            System.out.println(variable + " removed from " + sentence);
+                            System.out.println("\t" + variable + " removed from " + sentence);
                             varIt.remove();
                         }
                     }
@@ -62,16 +62,14 @@ public class ForwardChaining {
 
             for (Sentence sentence : program.getSentences()) {
 
-                System.out.println("Sentence: " + sentence);
-
                 if (sentence.eval(result)) {
                     result.add(sentence.ls);
                 }
 
-                System.out.println(String.format("Execution %d result: %s", iter, result));
+                System.out.println(String.format("\t%s\t%s", sentence, result));
             }
 
-            System.out.println(String.format("---- Finished execution %d ----\n", iter));
+            System.out.println(String.format("---- Finished execution %d %s ----\n", iter, result));
 
         } while (!program.isEmpty() && !previous.containsAll(result));
 

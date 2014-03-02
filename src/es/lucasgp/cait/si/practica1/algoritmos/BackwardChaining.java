@@ -14,7 +14,7 @@ public class BackwardChaining {
 
     public static void main(String... args) throws FileNotFoundException {
 
-        program = new Program(args[0]);
+        program = new Program("programs/programaOrTypes");
         Set<Variable> result = new TreeSet<>();
 
         for (Variable variable : program.getVariables()) {

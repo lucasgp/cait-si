@@ -12,7 +12,7 @@ public class IterateStable {
 
     public static void main(String... args) throws FileNotFoundException {
 
-        Program program = new Program(args[0]);
+        Program program = new Program("programs/programaOrTypes");
         Set<Variable> previous = new TreeSet<>();
         Set<Variable> actual = new TreeSet<>();
 
@@ -25,16 +25,14 @@ public class IterateStable {
 
             for (Sentence sentence : program.getSentences()) {
 
-                System.out.println("Sentence: " + sentence);
-
                 if (sentence.eval(actual)) {
                     actual.add(sentence.ls);
                 }
 
-                System.out.println(String.format("Execution %d result: %s", iter, actual));
+                System.out.println(String.format("\t%s\t%s", sentence, actual));
             }
 
-            System.out.println(String.format("---- Finished execution %d ----", iter));
+            System.out.println(String.format("---- Finished execution %d %s ----", iter, actual));
 
         } while (!previous.containsAll(actual));
 
