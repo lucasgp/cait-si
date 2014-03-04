@@ -3,6 +3,7 @@ package es.lucasgp.cait.si.practica1.parser;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -10,12 +11,17 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.regex.Matcher;
+
+import es.lucasgp.cait.si.practica1.parser.combinations.Combinations;
 
 public class Program {
 
     private final Set<Variable> variables = new TreeSet<>();
     private final List<Sentence> sentences = new ArrayList<>();
     private final Map<Variable, List<Sentence>> sentencesByVariable = new HashMap<>();
+    private final Set<String> variableNames = new TreeSet<>();
+    private final Set<String> variableValues = new TreeSet<>();
 
     public Program(String path) {
         loadProgram(path);
@@ -31,26 +37,25 @@ public class Program {
 
                 String line = scanner.nextLine();
 
-                String[] sentenceSides = line.replace(".", "").replace(" ", "").split("<-");
+                Matcher matcher = Variable.VARIABLE_PATTERN.matcher(line);
 
-                List<Variable> conditionVars = new ArrayList<>();
-                if (sentenceSides.length == 1) {
-                    add(new Sentence(new Variable(sentenceSides[0]), new Condition()));
+                List<Variable> vars = new ArrayList<>();
+                while (matcher.find()) {
+                    vars.add(new Variable(matcher.group()));
+                }
+
+                if (vars.size() == 1) {
+                    add(new Sentence(vars.get(0), new Condition()));
                 } else {
-                    if (sentenceSides[1].contains("|")) {
-                        System.out.println("--- OR sentence: " + line);
-                        for (String varName : sentenceSides[1].split("[|,]")) {
-                            add(new Sentence(new Variable(sentenceSides[0]), new Condition(Arrays.asList(new Variable(
-                                    varName)))));
+                    if (line.contains("|")) {
+                        System.out.println("-------- OR: " + line);
+                        for (int index = 1; index < vars.size(); index++) {
+                            add(new Sentence(vars.get(0), new Condition(Arrays.asList(vars.get(index)))));
                         }
-                        System.out.println("---");
+                        System.out.println("------------------");
                     } else {
-                        for (String varName : sentenceSides[1].split("[|,]")) {
-                            conditionVars.add(new Variable(varName));
-                        }
-                        add(new Sentence(new Variable(sentenceSides[0]), new Condition(conditionVars)));
+                        add(new Sentence(vars.get(0), new Condition(vars.subList(1, vars.size()))));
                     }
-
                 }
             }
 
@@ -58,20 +63,104 @@ public class Program {
             throw new RuntimeException(e);
         }
 
+        System.out.println(String.format("\nVariables: %s", variables));
+        System.out.println(String.format("Variable names: %s", variableNames));
+        System.out.println(String.format("Variable values: %s\n", variableValues));
+
+        if (!variableNames.isEmpty()) {
+
+            System.out.println("------ Calculating combinations ------");
+
+            Collection<Map<String, String>> combinations = new Combinations(variableNames, variableValues)
+                    .combinationsByVariable();
+
+            System.out.println(String.format("------ Combinations: %s", combinations));
+
+            Collection<Sentence> newSentences = new ArrayList<>();
+            Collection<Sentence> toDeleteSentences = new ArrayList<>();
+            for (final Sentence sentence : sentences) {
+                List<Variable> sentenceVariables = new ArrayList<>(sentence.rs.vars);
+                sentenceVariables.add(sentence.ls);
+                for (Variable variable : sentenceVariables) {
+                    if (!variable.variables.isEmpty()) {
+                        for (Map<String, String> combination : combinations) {
+                            Sentence newSentence = nonVariableSentence(sentence, combination);
+                            newSentences.add(newSentence);
+                            System.out.println(String.format("New sentence %s\n\t%s %s", newSentence, combination,
+                                    sentence));
+                        }
+                        toDeleteSentences.add(sentence);
+                        System.out.println(String.format("%s removed", sentence));
+                        break;
+                    }
+                }
+            }
+            System.out.println(String.format("New sentences: %s", newSentences));
+            System.out.println(String.format("To delete sentences: %s", toDeleteSentences));
+            add(newSentences);
+            this.sentences.removeAll(toDeleteSentences);
+
+        }
+
         System.out.println("---- Program loaded ----\n");
     }
 
+    private Sentence nonVariableSentence(Sentence sentence, Map<String, String> combination) {
+        return new Sentence(nonVariable(sentence.ls, combination), nonVariable(sentence.rs, combination));
+    }
+
+    private Variable nonVariable(Variable variable, Map<String, String> combination) {
+
+        Collection<String> variableValues = new ArrayList<String>();
+        for (String variableName : variable.variables) {
+            variableValues.add(combination.get(variableName));
+        }
+
+        return new Variable(variable.name, variableValues);
+    }
+
+    private Collection<Variable> nonVariable(Collection<Variable> variables, Map<String, String> combination) {
+        Collection<Variable> result = new ArrayList<>();
+        for (Variable variable : variables) {
+            result.add(nonVariable(variable, combination));
+        }
+        return result;
+    }
+
+    private Condition nonVariable(Condition condition, Map<String, String> combination) {
+        return new Condition(nonVariable(condition.vars, combination));
+    }
+
+    private void add(Collection<Sentence> sentences) {
+        for (Sentence sentence : sentences) {
+            add(sentence);
+        }
+    }
+
     private void add(Sentence sentence) {
+
         System.out.println(sentence);
+
         sentences.add(sentence);
-        variables.add(sentence.ls);
-        variables.addAll(sentence.rs.vars);
+
         List<Sentence> variableSentences = sentencesByVariable.get(sentence.ls);
         if (variableSentences == null) {
             variableSentences = new ArrayList<>();
             sentencesByVariable.put(sentence.ls, variableSentences);
         }
         variableSentences.add(sentence);
+
+        add(sentence.ls);
+        for (Variable variable : sentence.rs.vars) {
+            add(variable);
+        }
+
+    }
+
+    private void add(Variable variable) {
+        variables.add(variable);
+        variableValues.addAll(variable.values);
+        variableNames.addAll(variable.variables);
     }
 
     public boolean isEmpty() {
@@ -90,4 +179,5 @@ public class Program {
         List<Sentence> sentences = sentencesByVariable.get(var);
         return sentences != null ? sentences : Collections.<Sentence> emptyList();
     }
+
 }

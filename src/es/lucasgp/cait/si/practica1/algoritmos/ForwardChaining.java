@@ -16,7 +16,7 @@ public class ForwardChaining {
 
     public static void main(String... args) throws FileNotFoundException {
 
-        Program program = new Program("programs/programaOrTypes");
+        Program program = new Program("programs/programaVariables");
         Set<Variable> result = new TreeSet<>();
 
         System.out.println(String.format("------ Looking for assignments ------"));

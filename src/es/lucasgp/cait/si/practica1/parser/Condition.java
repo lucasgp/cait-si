@@ -3,17 +3,16 @@ package es.lucasgp.cait.si.practica1.parser;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 public class Condition {
 
-    public final List<Variable> vars = new ArrayList<Variable>();
+    public final Collection<Variable> vars = new ArrayList<Variable>();
 
     public Condition() {
         this(Collections.<Variable> emptyList());
     }
 
-    public Condition(List<Variable> vars) {
+    public Condition(Collection<Variable> vars) {
         this.vars.addAll(vars);
     }
 

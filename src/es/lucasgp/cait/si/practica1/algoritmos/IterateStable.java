@@ -12,7 +12,7 @@ public class IterateStable {
 
     public static void main(String... args) throws FileNotFoundException {
 
-        Program program = new Program("programs/programaOrTypes");
+        Program program = new Program("programs/programaVariables");
         Set<Variable> previous = new TreeSet<>();
         Set<Variable> actual = new TreeSet<>();
 
