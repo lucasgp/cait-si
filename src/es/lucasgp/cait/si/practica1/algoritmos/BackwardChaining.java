@@ -16,33 +16,36 @@ public class BackwardChaining {
 
     public static void main(String... args) throws FileNotFoundException {
 
-        program = new Program("programs/programaVariables");
+        program = new Program("programs/programaOrTypes");
         Set<Variable> result = new TreeSet<>();
 
         for (Variable variable : program.getVariables()) {
-            result.addAll(eval(variable, new HashSet<Variable>(), 0));
+            result.addAll(eval(variable, result, new HashSet<Variable>(), 0));
         }
 
         System.out.println(String.format("\nFinal result: %s\n", result));
 
     }
 
-    private static Collection<Variable> eval(Variable var, Collection<Variable> result, int deep) {
+    private static Collection<Variable> eval(Variable var, Collection<Variable> result,
+            Collection<Variable> evaluatedVariables, int deep) {
 
         deep++;
 
         System.out.println(String.format("%s------ Evaluating sentences for variable '%s'... ------", tabs(deep), var));
 
-        for (Sentence sentence : program.getSentences(var)) {
+        evaluatedVariables.add(var);
 
-            System.out.println(String.format("%sSentence: %s", tabs(deep), sentence));
+        for (Sentence sentence : program.getSentences(var)) {
 
             if (sentence.eval(result)) {
                 result.add(sentence.ls);
             } else {
 
                 for (Variable conditionVar : sentence.rs.vars) {
-                    result.addAll(eval(conditionVar, result, deep));
+                    if (!evaluatedVariables.contains(conditionVar)) {
+                        result.addAll(eval(conditionVar, result, evaluatedVariables, deep));
+                    }
                 }
 
                 if (sentence.eval(result)) {
@@ -50,8 +53,6 @@ public class BackwardChaining {
                 }
 
             }
-
-            System.out.println(String.format("%sResult: %s", tabs(deep), result));
 
         }
 

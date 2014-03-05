@@ -39,4 +39,30 @@ public class Condition {
         }
         return result.length() == 0 ? result : result.substring(0, result.length() - 1);
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((vars == null) ? 0 : vars.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Condition other = (Condition) obj;
+        if (vars == null) {
+            if (other.vars != null)
+                return false;
+        } else if (!vars.equals(other.vars))
+            return false;
+        return true;
+    }
+
 }

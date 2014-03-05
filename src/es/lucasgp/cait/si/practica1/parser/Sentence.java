@@ -2,7 +2,7 @@ package es.lucasgp.cait.si.practica1.parser;
 
 import java.util.Collection;
 
-public class Sentence {
+public class Sentence implements Comparable<Sentence> {
 
     public final Variable ls;
     public final Condition rs;
@@ -31,4 +31,41 @@ public class Sentence {
     public boolean eval(Collection<Variable> actual) {
         return rs.eval(actual);
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((ls == null) ? 0 : ls.hashCode());
+        result = prime * result + ((rs == null) ? 0 : rs.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Sentence other = (Sentence) obj;
+        if (ls == null) {
+            if (other.ls != null)
+                return false;
+        } else if (!ls.equals(other.ls))
+            return false;
+        if (rs == null) {
+            if (other.rs != null)
+                return false;
+        } else if (!rs.equals(other.rs))
+            return false;
+        return true;
+    }
+
+    @Override
+    public int compareTo(Sentence o) {
+        return this.toString().compareToIgnoreCase(o.toString());
+    }
+
 }

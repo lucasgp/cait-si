@@ -76,8 +76,8 @@ public class Program {
 
             System.out.println(String.format("------ Combinations: %s", combinations));
 
-            Collection<Sentence> newSentences = new ArrayList<>();
-            Collection<Sentence> toDeleteSentences = new ArrayList<>();
+            Collection<Sentence> newSentences = new TreeSet<>();
+            Collection<Sentence> toDeleteSentences = new TreeSet<>();
             for (final Sentence sentence : sentences) {
                 List<Variable> sentenceVariables = new ArrayList<>(sentence.rs.vars);
                 sentenceVariables.add(sentence.ls);
@@ -86,23 +86,20 @@ public class Program {
                         for (Map<String, String> combination : combinations) {
                             Sentence newSentence = nonVariableSentence(sentence, combination);
                             newSentences.add(newSentence);
-                            System.out.println(String.format("New sentence %s\n\t%s %s", newSentence, combination,
-                                    sentence));
                         }
                         toDeleteSentences.add(sentence);
-                        System.out.println(String.format("%s removed", sentence));
                         break;
                     }
                 }
             }
-            System.out.println(String.format("New sentences: %s", newSentences));
-            System.out.println(String.format("To delete sentences: %s", toDeleteSentences));
+//            System.out.println(String.format("New sentences: %s", newSentences));
+//            System.out.println(String.format("To delete sentences: %s", toDeleteSentences));
             add(newSentences);
             this.sentences.removeAll(toDeleteSentences);
 
         }
 
-        System.out.println("---- Program loaded ----\n");
+        System.out.println(String.format("---- Program loaded (Sentences: %s, variables: %s) ----\n", this.sentences.size(), this.sentencesByVariable.size()));
     }
 
     private Sentence nonVariableSentence(Sentence sentence, Map<String, String> combination) {
@@ -111,7 +108,7 @@ public class Program {
 
     private Variable nonVariable(Variable variable, Map<String, String> combination) {
 
-        Collection<String> variableValues = new ArrayList<String>();
+        Collection<String> variableValues = new ArrayList<String>(variable.values);
         for (String variableName : variable.variables) {
             variableValues.add(combination.get(variableName));
         }

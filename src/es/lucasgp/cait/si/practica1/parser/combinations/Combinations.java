@@ -3,6 +3,7 @@ package es.lucasgp.cait.si.practica1.parser.combinations;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +21,7 @@ public class Combinations {
 
     public Collection<Map<String, String>> combinationsByVariable() {
 
-        Collection<Map<String, String>> result = new ArrayList<>();
+        Collection<Map<String, String>> result = new HashSet<>();
 
         Collection<Collection<String>> combinations = combinations();
 
@@ -40,13 +41,13 @@ public class Combinations {
 
         Node root = buildNode(new Node(), variableNames.size());
 
-        System.out.println("TREE: " + root);
+//        System.out.println("TREE: " + root);
 
-        Collection<Collection<String>> combinations = new ArrayList<Collection<String>>();
+        Collection<Collection<String>> combinations = new HashSet<Collection<String>>();
         traverse(root, new ArrayList<String>(), combinations);
 
-        System.out.println("Raw Combinations: " + combinations);
-        
+//        System.out.println(String.format("Raw Combinations (%s): %s", combinations.size(), combinations));
+
         return combinations;
     }
 
